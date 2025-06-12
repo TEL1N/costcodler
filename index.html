@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COSTCODLE</title>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        body {
+            font-family: "VT323", monospace;
+            background-color: gainsboro;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            font-size: 16px;
+        }
+
+        /* Main container - perfect viewport fit, no scrolling */
+        #main-page {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        /* Header - minimal space usage */
+        #site-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: gainsboro;
+            padding: 0.5vh 0;
+            min-height: max-content;
+        }
+
+        #header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: min(95vw, 400px);
+            border-bottom: 2px solid gray;
+            padding-bottom: 0.3vh;
+        }
+
+        .title {
+            font-size: clamp(32px, 7vw, 52px);
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .costco-red { color: rgb(227, 42, 54); }
+        .costco-blue { color: rgb(0, 96, 169); }
+
+        #info-button, #stat-button {
+            font-family: "VT323", monospace;
+            font-size: clamp(24px, 5vw, 36px);
+            width: clamp(28px, 6vw, 40px);
+            height: clamp(32px, 5vh, 44px);
+            cursor: pointer;
+            color: black;
+            border: none;
+            background: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main game area - uses all remaining space efficiently */
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            padding: 1vh 2vw;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        /* Product section - proportional sizing */
+        #info-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1vh 2vw;
+            border-radius: 8px;
+            background-color: rgb(173, 173, 173);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            width: min(95vw, 400px);
+            margin-bottom: 1vh;
+        }
+
+        #image-container {
+            width: clamp(120px, 20vh, 200px);
+            height: clamp(120px, 20vh, 200px);
+            margin-bottom: 1vh;
+            border-radius: 8px;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #product-info {
+            font-size: clamp(14px, 2.5vw, 18px);
+            text-align: center;
+            width: 100%;
+            line-height: 1.2;
+        }
+
+        #game-stats {
+            margin-bottom: 1vh;
+            font-size: clamp(16px, 3vw, 22px);
+            text-align: center;
+        }
+
+        /* Game board - perfectly fitted to remaining space */
+        #guesses-container {
+            display: flex;
+            flex-direction: column;
+            width: min(95vw, 400px);
+            gap: 0.5vh;
+            position: relative;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .guess-container {
+            display: flex;
+            height: clamp(38px, 5vh, 48px);
+            border-radius: 8px;
+            background-color: gray;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .guess-value-container {
+            flex: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(16px, 3vw, 22px);
+            background-color: gray;
+        }
+
+        .guess-direction-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(16px, 3vw, 22px);
+            font-weight: bold;
+            margin-left: 2px;
+            color: rgba(0, 0, 0, 0.5);
+            border-radius: 0 8px 8px 0;
+        }
+
+        #text-input-container {
+            flex: 2;
+            display: flex;
+            border: 1px solid black;
+            border-radius: 8px 0 0 8px;
+            background-color: gray;
+            overflow: hidden;
+        }
+
+        #input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: clamp(28px, 7vw, 36px);
+            border-right: 2px solid black;
+            background-color: rgb(173, 173, 173);
+            font-size: clamp(16px, 3vw, 20px);
+        }
+
+        #guess-input {
+            font-family: "VT323", monospace;
+            font-size: clamp(14px, 2.5vw, 18px);
+            flex: 1;
+            padding: 0 0.5em;
+            color: gainsboro;
+            border: none;
+            background-color: rgb(94, 94, 94);
+        }
+
+        #guess-input::placeholder {
+            color: gainsboro;
+            opacity: 0.8;
+        }
+
+        #button-container {
+            flex: 1;
+            display: flex;
+            margin-left: 2px;
+        }
+
+        #guess-button {
+            font-family: "VT323", monospace;
+            font-size: clamp(14px, 2.5vw, 18px);
+            width: 100%;
+            color: rgb(227, 42, 54);
+            border: none;
+            background-color: rgb(173, 173, 173);
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+        }
+
+        #guess-button:hover {
+            background-color: rgba(0, 96, 169, 0.5);
+        }
+
+        /* Color states */
+        .guess-win { background-color: rgb(1, 154, 1); }
+        .guess-near { background-color: rgb(255, 196, 37); }
+        .guess-far { background-color: rgb(255, 37, 37); }
+
+        .transparent-background {
+            background-color: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .hide { display: none !important; }
+
+        /* Footer - minimal */
+        #site-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 2px solid gray;
+            background-color: gainsboro;
+            padding: 0.5vh 2vw;
+            font-size: clamp(12px, 2vw, 16px);
+        }
+
+        /* Toast messages */
+        #warning-toast, #share-toast {
+            position: absolute;
+            z-index: 1000;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(14px, 2.5vw, 18px);
+            padding: 1vh 2vw;
+            color: white;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.9);
+            white-space: nowrap;
+        }
+
+        /* Share button */
+        #share-button {
+            width: 100%;
+            height: clamp(38px, 5vh, 48px);
+            font-size: clamp(16px, 3vw, 22px);
+            font-family: "VT323", monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            background-color: rgb(227, 42, 54);
+            cursor: pointer;
+        }
+
+        .share-icon {
+            height: 1em;
+            width: 1em;
+            margin-left: 0.5em;
+            filter: invert(1);
+        }
+
+        /* Overlay styles */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: gainsboro;
+            z-index: 1000;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 2vh 2vw;
+            overflow-y: auto;
+        }
+
+        .overlay-body {
+            width: min(90vw, 500px);
+            font-size: clamp(14px, 2.5vw, 18px);
+        }
+
+        /* Animations */
+        @keyframes flipInX {
+            from {
+                transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+                opacity: 0;
+            }
+            to {
+                transform: perspective(400px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes flipOutX {
+            from { transform: perspective(400px); }
+            to {
+                transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes headShake {
+            0%, 50% { transform: translateX(0); }
+            10%, 30% { transform: translateX(-6px) rotateY(-9deg); }
+            20%, 40% { transform: translateX(5px) rotateY(7deg); }
+        }
+
+        .animate__animated { animation-duration: 1s; animation-fill-mode: both; }
+        .animate__flipInX { animation-name: flipInX; }
+        .animate__flipOutX { animation-name: flipOutX; animation-duration: 0.75s; }
+        .animate__headShake { animation-name: headShake; }
+
+        /* Desktop-specific optimizations - eliminate scrolling */
+        @media (min-width: 768px) {
+            #game-container {
+                justify-content: space-between;
+                padding: 1.5vh 3vw;
+            }
+            
+            #info-card {
+                margin-bottom: 1.5vh;
+            }
+            
+            #image-container {
+                width: min(25vh, 180px);
+                height: min(25vh, 180px);
+            }
+            
+            .guess-container {
+                height: min(6vh, 45px);
+            }
+        }
+
+        /* Mobile optimizations - fix header cutoff */
+        @media (max-width: 767px) {
+            .title {
+                font-size: clamp(28px, 8vw, 40px);
+            }
+            
+            #info-button, #stat-button {
+                font-size: clamp(20px, 6vw, 28px);
+                width: clamp(24px, 7vw, 32px);
+                height: clamp(28px, 6vh, 36px);
+            }
+            
+            #image-container {
+                width: clamp(100px, 22vh, 140px);
+                height: clamp(100px, 22vh, 140px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main-page">
+        <header id="site-header">
+            <div id="header-container">
+                <button id="info-button" data-overlay="info-overlay" type="button">?</button>
+                <h1 id="title" class="title costco-red">
+                    COSTCO<span class="costco-blue">DLE</span>
+                </h1>
+                <button id="stat-button" data-overlay="stats-overlay" type="button">
+                    <svg width="100%" height="100%" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect y="100" width="50" height="100" fill="black"/>
+                        <rect x="75" y="50" width="50" height="150" fill="black"/>
+                        <rect x="150" width="50" height="200" fill="black"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <main id="game-container">
+            <div id="share-toast" class="animate__animated hide">
+                Results copied to clipboard
+            </div>
+            
+            <div id="info-card" class="animate__animated">
+                <div id="image-container">
+                    <div style="
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(135deg, #0060A9 0%, #E32A36 100%);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        position: relative;
+                        overflow: hidden;
+                    ">
+                        <div style="
+                            background: white;
+                            padding: 1em;
+                            border-radius: 8px;
+                            text-align: center;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                        ">
+                            <div style="
+                                font-size: 1.8em;
+                                font-weight: bold;
+                                background: linear-gradient(45deg, #E32A36, #0060A9);
+                                -webkit-background-clip: text;
+                                -moz-background-clip: text;
+                                background-clip: text;
+                                -webkit-text-fill-color: transparent;
+                                -moz-text-fill-color: transparent;
+                                color: transparent;
+                                line-height: 1;
+                                margin-bottom: 0.2em;
+                            ">KIRKLAND</div>
+                            <div style="
+                                font-size: 0.7em;
+                                color: #333;
+                                font-style: italic;
+                                margin-bottom: 0.3em;
+                            ">Signature</div>
+                            <div style="font-size: 1.2em;">📦</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="product-info">Great River Organic Milling All Purpose Flour, 10 lbs</div>
+            </div>
+            
+            <div id="game-stats">Guess: 1/6</div>
+            
+            <div id="guesses-container">
+                <div id="warning-toast" class="animate__animated hide">
+                    Invalid Guess ⚠️
+                </div>
+                <div id="1" class="guess-container"></div>
+                <div id="2" class="guess-container"></div>
+                <div id="3" class="guess-container"></div>
+                <div id="4" class="guess-container"></div>
+                <div id="5" class="guess-container"></div>
+                <div id="6" class="guess-container"></div>
+                <div id="input-container" class="guess-container transparent-background">
+                    <div id="text-input-container">
+                        <div id="input-label">$</div>
+                        <input id="guess-input" type="text" placeholder="Enter a guess..." />
+                    </div>
+                    <div id="button-container">
+                        <button id="guess-button" class="active">SUBMIT</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer id="site-footer">
+            <div id="database-link">
+                <a href="https://costcofdb.com/food-database" target="_blank">Costco Food Database</a>
+            </div>
+            <div id="dev-name">&copy;Kerm</div>
+        </footer>
+    </div>
+<script>
+(async () => {
+  // 1️⃣ Load your cleaned games JSON
+  const gameDatabase = await fetch('./games_local.json')
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    });
+
+  // 2️⃣ Original start date
+  const costcodleStartDate = new Date("09/21/2023");
+
+  // ─── Currency formatting ─────────────────────────────────
+  function formatCurrency(input, blur) {
+    let input_val = input.value;
+    if (!input_val) return;
+    let original_len = input_val.length;
+    let caret_pos = input.selectionStart;
+
+    if (input_val.indexOf(".") >= 0) {
+      let decimal_pos = input_val.indexOf(".");
+      let left_side = input_val.substring(0, decimal_pos);
+      let right_side = input_val.substring(decimal_pos);
+
+      left_side = formatNumber(left_side);
+      right_side = formatNumber(right_side);
+
+      if (blur === "blur") right_side += "00";
+      right_side = right_side.substring(0, 2);
+
+      input_val = left_side + "." + right_side;
+    } else {
+      input_val = formatNumber(input_val);
+      if (blur === "blur") input_val += ".00";
+    }
+
+    input.value = input_val;
+    let updated_len = input_val.length;
+    caret_pos = updated_len - original_len + caret_pos;
+    input.setSelectionRange(caret_pos, caret_pos);
+  }
+
+  function formatNumber(n) {
+    return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  // ─── Game code ───────────────────────────────────────────
+  (function() {
+    // Global variables
+    let productName, productPrice, productImage;
+    let shakeTimeout, toastTimeout, warningTimeout;
+
+    const gameNumber = getGameNumber();
+    const input = document.getElementById("guess-input");
+    const buttonInput = document.getElementById("guess-button");
+
+    document.getElementById("info-button")
+      .addEventListener("click", switchState);
+    document.getElementById("stat-button")
+      .addEventListener("click", switchState);
+
+    // In-memory + localStorage fallback
+    let memoryStorage = { stats: null, state: null };
+    const STORAGE_KEY_STATS = 'costcodle_stats';
+    const STORAGE_KEY_STATE = 'costcodle_state';
+    try {
+      const savedStats = localStorage.getItem(STORAGE_KEY_STATS);
+      const savedState = localStorage.getItem(STORAGE_KEY_STATE);
+      if (savedStats) memoryStorage.stats = JSON.parse(savedStats);
+      if (savedState) memoryStorage.state = JSON.parse(savedState);
+    } catch (e) {
+      console.log('localStorage not available, using memory only');
+    }
+
+    const userStats = memoryStorage.stats || {
+      numGames: 0, numWins: 0, winsInNum: [0,0,0,0,0,0],
+      currentStreak: 0, maxStreak: 0
+    };
+    const gameState = memoryStorage.state || {
+      gameNumber: -1, guesses: [], hasWon: false
+    };
+
+    function saveGameData() {
+      memoryStorage.stats = userStats;
+      memoryStorage.state = gameState;
+      try {
+        localStorage.setItem(STORAGE_KEY_STATS, JSON.stringify(userStats));
+        localStorage.setItem(STORAGE_KEY_STATE, JSON.stringify(gameState));
+      } catch (e) {
+        console.log('Could not save to localStorage');
+      }
+    }
+    window.addEventListener('beforeunload', saveGameData);
+    setInterval(saveGameData, 5000);
+
+    input.addEventListener("keyup", () => formatCurrency(input));
+    input.addEventListener("blur", () => formatCurrency(input, "blur"));
+
+    // Kick off
+    playGame();
+
+    function playGame() {
+      fetchGameData(getGameNumber());
+    }
+
+    function fetchGameData(gameNumber) {
+      const maxGames = Object.keys(gameDatabase).length;
+      const actual = ((gameNumber - 1) % maxGames) + 1;
+      const data = gameDatabase[`game-${actual}`];
+      productName = data.name;
+      productPrice = Number(data.price.slice(1));
+      productImage = data.image;
+      initializeGame();
+    }
+
+    function initializeGame() {
+      const today = new Date();
+      const last = gameState.lastPlayedDate
+        ? new Date(gameState.lastPlayedDate)
+        : null;
+      const isNewDay = last
+        ? today.toDateString() !== last.toDateString()
+        : true;
+
+      if (isNewDay || gameState.gameNumber !== gameNumber) {
+        if (gameState.hasWon === false && gameState.guesses.length) {
+          userStats.currentStreak = 0;
+        }
+        gameState.gameNumber = gameNumber;
+        gameState.guesses = [];
+        gameState.hasWon = false;
+        gameState.lastPlayedDate = today.toISOString();
+        if (!last) userStats.numGames++;
+        saveGameData();
+      }
+
+      displayProductCard();
+      updateGameBoard();
+
+      if (gameState.guesses.length < 6 && !gameState.hasWon) {
+        addEventListeners();
+      } else {
+        convertToShareButton();
+      }
+    }
+
+    function convertToShareButton() {
+      const container = document.getElementById("input-container");
+      container.innerHTML = "";
+      const btn = document.createElement("button");
+      btn.id = "share-button";
+      btn.innerHTML = `Share <svg class="share-icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M48 39.26a8.3 8.3 0 0 0-6.033 2.596L24.23 33.172c.061-.408.103-.821.103-1.246 0-.414-.04-.818-.098-1.215l17.711-8.589A8.302 8.302 0 0 0 48 24.741a8.333 8.333 0 1 0-8.333-8.333c0 .414.04.817.098 1.215l-17.711 8.589A8.3 8.3 0 0 0 16 23.593a8.333 8.333 0 0 0-8.333 8.333A8.332 8.332 0 0 0 16 40.259a8.3 8.3 0 0 0 6.033-2.596l17.737 8.684a8.378 8.378 0 0 0-.103 1.246c0 4.603 3.731 8.333 8.333 8.333s8.333-3.73 8.333-8.333A8.333 8.333 0 0 0 48 39.26z" fill="#ffffff"></path></svg>`;
+      btn.addEventListener("click", copyStats);
+      container.appendChild(btn);
+    }
+
+     function displayProductCard() {
+      const imageContainer = document.getElementById("image-container");
+      imageContainer.innerHTML = `
+        <div style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #ccc;
+          padding: 20px;
+          border-radius: 8px;
+        ">
+          <div style="
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 220px;
+            max-height: 180px;
+          ">
+            <img
+              src="${productImage}"
+              alt="${productName}"
+              style="width:100%; height:auto; object-fit:contain;"
+            />
+          </div>
+        </div>
+      `;
+      document.getElementById("product-info").innerHTML = `<center>${productName}</center>`;
+    }
+
+    function updateGameBoard() {
+      updateGuessStat();
+      gameState.guesses.forEach((g,i) => displayGuess(g, i+1));
+    }
+
+    function updateGuessStat() {
+      const stats = document.getElementById("game-stats");
+      if (gameState.hasWon) {
+        stats.innerHTML = `<center>You win! 🎉 The price was ${productPrice.toFixed(2)}</center>`;
+      } else if (gameState.guesses.length === 6) {
+        stats.innerHTML = `<center>Game over! The price was ${productPrice.toFixed(2)}</center>`;
+      } else {
+        stats.innerHTML = `Guess: ${gameState.guesses.length + 1}/6`;
+      }
+    }
+
+    function inputEventListener(e) { if (e.key === "Enter") handleInput(); }
+    function buttonEventListener() { handleInput(); }
+
+    function handleInput() {
+      const str = input.value.replaceAll(",", "");
+      const guess = Number(str).toFixed(2);
+      if (isNaN(guess) || !str) {
+        displayWarning();
+        return;
+      }
+      checkGuess(guess);
+      input.value = "";
+    }
+
+    function displayWarning() {
+      clearTimeout(warningTimeout);
+      const w = document.getElementById("warning-toast");
+      w.classList.remove("hide");
+      w.classList.add("animate__flipInX");
+      warningTimeout = setTimeout(() => {
+        w.classList.remove("animate__flipInX");
+        w.classList.add("animate__flipOutX");
+        setTimeout(() => w.classList.add("hide"), 1000);
+      }, 2000);
+    }
+
+    function copyStats() {
+      let out = `Costcodle #${gameNumber}`;
+      out += gameState.hasWon ? ` ${gameState.guesses.length}/6\n` : ` X/6\n`;
+      gameState.guesses.forEach(g => {
+        out += g.direction === "↑" ? "⬆️" : g.direction === "↓" ? "⬇️" : "✅";
+        out += g.closeness === "guess-far" ? "🟥" : g.closeness === "guess-near" ? "🟨" : "";
+        out += "\n";
+      });
+      out += `https://costcodle.com`;
+      navigator.clipboard.writeText(out).then(() => {
+        clearTimeout(toastTimeout);
+        const t = document.getElementById("share-toast");
+        t.classList.remove("hide");
+        t.classList.add("animate__flipInX");
+        toastTimeout = setTimeout(() => {
+          t.classList.remove("animate__flipInX");
+          t.classList.add("animate__flipOutX");
+          setTimeout(() => t.classList.add("hide"), 1000);
+        }, 3000);
+      });
+    }
+
+    function addEventListeners() {
+      input.addEventListener("keydown", inputEventListener);
+      buttonInput.addEventListener("click", buttonEventListener);
+      input.addEventListener("focus", () => input.setAttribute("placeholder", "0.00"));
+      input.addEventListener("blur", () => input.setAttribute("placeholder", "Enter a guess."));
+    }
+
+    function removeEventListeners() {
+      buttonInput.disabled = true;
+      buttonInput.classList.remove("active");
+      input.disabled = true;
+      input.placeholder = "Game Over!";
+      input.removeEventListener("keydown", inputEventListener);
+      buttonInput.removeEventListener("click", buttonEventListener);
+    }
+
+    function checkGuess(guess) {
+      const percentAway = ((guess * 100)/(productPrice*100))*100 - 100;
+      const obj = { guess, closeness: "", direction: "" };
+      if (Math.abs(percentAway) <= 5) {
+        obj.closeness = "guess-win"; gameState.hasWon = true;
+      } else {
+        shakeBox();
+        obj.closeness = Math.abs(percentAway) <= 25 ? "guess-near" : "guess-far";
+      }
+      obj.direction = gameState.hasWon ? "✓" : percentAway < 0 ? "↑" : "↓";
+      gameState.guesses.push(obj);
+      saveGameData();
+      displayGuess(obj);
+      if (gameState.hasWon) gameWon();
+      else if (gameState.guesses.length === 6) gameLost();
+    }
+
+    function displayGuess(guess, idx = gameState.guesses.length) {
+      const cell = document.getElementById(idx.toString());
+      const valDiv = document.createElement("div");
+      const dirDiv = document.createElement("div");
+      valDiv.classList.add("guess-value-container", "animate__flipInX");
+      dirDiv.classList.add("guess-direction-container", "animate__flipInX");
+      valDiv.innerHTML = guess.guess;
+      dirDiv.classList.add(guess.closeness);
+      dirDiv.innerHTML = guess.direction;
+      cell.classList.add("animate__flipOutX");
+      setTimeout(() => {
+        cell.classList.add("transparent-background");
+        cell.appendChild(valDiv);
+        cell.appendChild(dirDiv);
+        updateGuessStat();
+      }, 500);
+    }
+
+    function gameWon() {
+      userStats.numWins++;
+      userStats.currentStreak++;
+      userStats.winsInNum[gameState.guesses.length - 1]++;
+      if (userStats.currentStreak > userStats.maxStreak) {
+        userStats.maxStreak = userStats.currentStreak;
+      }
+      gameState.hasWon = true;
+      saveGameData();
+      removeEventListeners();
+      convertToShareButton();
+    }
+
+    function gameLost() {
+      userStats.currentStreak = 0;
+      saveGameData();
+      removeEventListeners();
+      convertToShareButton();
+    }
+
+    function switchState(event) {
+      const btn = event.currentTarget.dataset.overlay;
+      const overlay = document.getElementById(btn);
+      const title = document.getElementById("title");
+      if (title.classList.contains("info-title")) title.classList.remove("info-title");
+      if (overlay.style.display === "flex") {
+        title.innerHTML = `COSTCO<span class="costco-blue">DLE</span>`;
+        overlay.style.display = "none";
+        return;
+      }
+      if (btn === "info-overlay") {
+        document.getElementById("stats-overlay").style.display = "none";
+        renderInfo();
+      } else {
+        document.getElementById("info-overlay").style.display = "none";
+        renderStats();
+      }
+
+      function renderInfo() {
+        title.innerHTML = `HOW TO <span class="costco-blue">PLAY</span>`;
+        title.classList.add("info-title");
+        overlay.style.display = "flex";
+      }
+
+      function renderStats() {
+        title.innerHTML = `GAME <span class="costco-blue">STATS</span>`;
+        renderStatistics();
+        graphDistribution();
+        overlay.style.display = "flex";
+
+        function renderStatistics() {
+          document.getElementById("number-wins").innerHTML = `${userStats.numGames}`;
+          const wp = document.getElementById("win-percent");
+          wp.innerHTML = userStats.numGames
+            ? `${Math.round((userStats.numWins/userStats.numGames)*100)}`
+            : `0`;
+          document.getElementById("current-streak").innerHTML = `${userStats.currentStreak}`;
+          document.getElementById("max-streak").innerHTML = `${userStats.maxStreak}`;
+        }
+
+        function graphDistribution() {
+          userStats.winsInNum.forEach((v,i) => {
+            const bar = document.getElementById(`graph-${i+1}`);
+            const w = userStats.numWins
+              ? Math.floor((v/userStats.numWins)*95)+5
+              : 5;
+            bar.style.width = `${w}%`;
+            bar.innerHTML = `${v}`;
+          });
+        }
+      }
+    }
+
+    function shakeBox() {
+      clearTimeout(shakeTimeout);
+      const card = document.getElementById("info-card");
+      card.classList.remove("animate__headShake");
+      shakeTimeout = setTimeout(() => card.classList.add("animate__headShake"), 100);
+    }
+
+    function getGameNumber() {
+      const diff = (new Date() - costcodleStartDate) / (1000*3600*24);
+      return Math.ceil(diff);
+    }
+  })();
+})();
+</script>
+</body>
+</html>

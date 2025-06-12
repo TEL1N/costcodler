@@ -1,0 +1,20 @@
+{
+  "name": "Costcodle",
+  "short_name": "Costcodle",
+  "description": "Costco price-guessing game as a Discord Activity",
+  "version": "1.0.0",
+  "start_url": "/",
+  "display": "fullscreen",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ]
+}
